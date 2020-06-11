@@ -7,7 +7,7 @@ from matplotlib.widgets import Slider
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 url = "https://api.covid19api.com/countries"
-url2 = "https://api.covid19api.com/total/country/turkey"
+url2 = "https://api.covid19api.com/total/country/"
 
 response = requests.get(url)
 json_veri = response.json()
@@ -18,20 +18,38 @@ json_veri2 = response.json()
 pencere = Tk()
 pencere.title("COVID-19")
 
-days=[]
-sayilar=[]
-
-for i in range(0,len(json_veri2)):
-    sayilar.append(json_veri2[i]["Confirmed"])
-    days.append(i)
 
 figur1 = plt.figure(figsize=(6,6))
 ax = figur1.add_subplot(1,1,1)
-ax.plot(days, sayilar)
 grafik = FigureCanvasTkAgg(figur1, pencere)
 grafik.get_tk_widget().grid(row=0 , column=1)
 
+ulke_slug=[]
+
+def draw():
+    ad = ulkebox.curselection()
+    sira = int(ad[0])
+
+    print(ulke_slug[sira])
+    response = requests.get(url2+ulke_slug[sira])
+    json_veri2 = response.json()
+    days=[]
+    sayilar=[]
+    for i in range(0,len(json_veri2)):
+        sayilar.append(json_veri2[i]["Confirmed"])
+        days.append(i)
+
+    figur1 = plt.figure(figsize=(6,6))
+    ax = figur1.add_subplot(1,1,1)
+    ax.plot(days, sayilar)
+    grafik = FigureCanvasTkAgg(figur1, pencere)
+    grafik.get_tk_widget().grid(row=0 , column=1)
+
 #=======================================================================================================================
+
+for i in range(0,len(json_veri)):
+    ulke_slug.append(json_veri[i]["Slug"])
+
 Secenek = Frame(pencere,background = "darkturquoise")
 Secenek.grid(row=0 , column=0)
 
@@ -50,7 +68,7 @@ grafikBox = Listbox(Secenek, font="Calibri", selectmode="extended",exportselecti
 grafikBox.grid(row=4 , column=0)
 
 
-grafikButton = Button(Secenek, text="Göster",background = "White", fg= "darkturquoise",font="Helvetica 14 bold")
+grafikButton = Button(Secenek, text="Göster",background = "White", fg= "darkturquoise",font="Helvetica 14 bold",command=draw)
 grafikButton.grid(row=5 , column=0)
 
 pencere.mainloop()
